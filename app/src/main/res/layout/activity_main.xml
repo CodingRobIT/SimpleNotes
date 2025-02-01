@@ -23,7 +23,8 @@
         android:id="@+id/editTextNote"
         android:layout_width="match_parent"
         android:layout_height="544dp"
-        android:hint="@string/user_note_hint_txt" />
+        android:hint="@string/user_note_hint_txt"
+        android:gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"
