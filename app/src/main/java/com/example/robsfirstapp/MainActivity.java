@@ -12,39 +12,39 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText editTextNote;
     private Button saveButton;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Im onCreate() SharedPreferences laden
-        SharedPreferences sharedPreferences = getSharedPreferences("NotizenApp", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("NotizenApp", MODE_PRIVATE);
 
         editTextNote = findViewById(R.id.editTextNote);
         saveButton = findViewById(R.id.saveButton);
 
-        // Beim Starten der App gespeicherte Notiz anzeigen (falls vorhanden)
-        String savedNote = sharedPreferences.getString("note", "");
-        editTextNote.setText(savedNote);
+        // Gespeicherte Notiz beim Start laden
+        editTextNote.setText(sharedPreferences.getString("note", ""));
 
-        // Button Click Listener für das Speichern der Notiz
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String note = editTextNote.getText().toString();
-                if (!note.isEmpty()) {
-                    // Editor erst hier erstellen, um die Notiz zu speichern
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("note", note);
-                    editor.apply(); // Änderungen speichern
+                String note = editTextNote.getText().toString().trim();
 
-                    // Toast-Nachricht zum Testen
-                    Toast.makeText(MainActivity.this, "Notiz gespeichert: " + note, Toast.LENGTH_SHORT).show();
+                if (!note.isEmpty()) {
+                    saveNote(note);
+                    Toast.makeText(MainActivity.this, "Notiz gespeichert!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "Bitte eine Notiz eingeben!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private void saveNote(String note) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("note", note);
+        editor.apply();
     }
 }
