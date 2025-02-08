@@ -1,5 +1,12 @@
 package com.example.robsfirstapp;
 
+// Fürt die DB anbindung
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+// -------------------------------------
+
+// Annotation für DB anbindung
+@Entity(tableName = "notes")
 public class Note {
     private int id;
     private String title;
@@ -11,7 +18,13 @@ public class Note {
         this.content = content;
     }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
 //    public String getTitle() { // Old getTitel() method who works but i try also the new one
 //        return title != null && !title.isEmpty() ? title : content.substring(0, Math.min(10, content.length()));
