@@ -17,9 +17,9 @@
 
         <EditText
             android:id="@+id/noteTitle"
-            android:hint="Überschrift"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="62dp"
+            android:hint="Überschrift" />
 
         <EditText
             android:id="@+id/noteContent"
