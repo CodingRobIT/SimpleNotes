@@ -8,13 +8,12 @@ import androidx.room.PrimaryKey;
 // Annotation für DB anbindung
 @Entity(tableName = "notes")
 public class Note {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private int id;
     private String title;
     private String content;
 
-    public Note(int id, String title, String content) {
-        this.id = id;
+    public Note(String title, String content) {
         this.title = title;
         this.content = content;
     }
@@ -48,9 +47,7 @@ public class Note {
         this.content = content;
     }
 
-    // Methode to delete (optional for now)
     public void clear() {
-        this.id = 0; // unsure what to do with this or if i need this
         this.title = "";
         this.content = "";
     }

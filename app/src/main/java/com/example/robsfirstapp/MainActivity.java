@@ -7,6 +7,8 @@ import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +25,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Datenbank initialisieren
+        db = Room.databaseBuilder(getApplicationContext(), NoteDatabase.class, "notes_database").allowMainThreadQueries().build();
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         noteTitle = findViewById(R.id.noteTitle);
         noteContent = findViewById(R.id.noteContent);
         Button saveButton = findViewById(R.id.saveButton);
         Button deleteButton = findViewById(R.id.deleteButton);
+
+        // Lade Notizen aus der DB
+        new Thread(() -> {
+            List<Note> notesFromDb = db.noteDao().getAllNotes();
+            runOnUiThread(() -> {
+                notes.addAll(notesFromDb);
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
 
         // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
@@ -51,20 +65,20 @@ public class MainActivity extends AppCompatActivity {
         String content = noteContent.getText().toString();
 
         if (selectedNote != null) {
-            // Wenn eine Notiz ausgewählt ist, bearbeite sie
             selectedNote.setTitle(title);
             selectedNote.setContent(content);
-            adapter.notifyItemChanged(notes.indexOf(selectedNote));  // RecyclerView aktualisieren
+
+            // Speichern der Änderungen in der Datenbank
+            new Thread(() -> db.noteDao().update(selectedNote)).start();
         } else {
-            // Falls keine Notiz ausgewählt ist, füge eine neue hinzu
-            notes.add(new Note(notes.size(), title, content));
-            adapter.notifyItemInserted(notes.size() - 1);  // RecyclerView aktualisieren
+            Note newNote = new Note(title, content);
+            new Thread(() -> db.noteDao().insert(newNote)).start();
         }
 
-        // Felder zurücksetzen
+        // UI anpassen und Textfelder leeren
         noteTitle.setText("");
         noteContent.setText("");
-        selectedNote = null;  // Auswahl zurücksetzen
+        selectedNote = null;
     }
 
     private void loadNotes() {
