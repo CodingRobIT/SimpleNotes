@@ -16,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText noteTitle, noteContent;
     private Note selectedNote = null;
 
+    private NoteDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,18 +27,23 @@ public class MainActivity extends AppCompatActivity {
         noteTitle = findViewById(R.id.noteTitle);
         noteContent = findViewById(R.id.noteContent);
         Button saveButton = findViewById(R.id.saveButton);
+        Button deleteButton = findViewById(R.id.deleteButton);
 
         // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
             noteTitle.setText(note.getTitle());
             noteContent.setText(note.getContent());
+            deleteButton.setEnabled(true);
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
         saveButton.setOnClickListener(v -> saveNote());
+        deleteButton.setOnClickListener(v -> deleteNote());
+
+        loadNotes();
     }
 
     private void saveNote() {
@@ -58,5 +65,24 @@ public class MainActivity extends AppCompatActivity {
         noteTitle.setText("");
         noteContent.setText("");
         selectedNote = null;  // Auswahl zurücksetzen
+    }
+
+    private void loadNotes() {
+        notes.clear();
+        notes.addAll(db.noteDao().getAllNotes());
+        adapter.notifyDataSetChanged();
+    }
+
+    private void deleteNote() {
+        if (selectedNote != null) {
+            db.noteDao().delete(selectedNote);
+            notes.remove(selectedNote);
+            adapter.notifyDataSetChanged();
+
+            noteTitle.setText("");
+            noteContent.setText("");
+            selectedNote = null;
+            findViewById(R.id.deleteButton).setEnabled(false);
+        }
     }
 }
