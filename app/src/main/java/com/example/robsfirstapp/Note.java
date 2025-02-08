@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 // Annotation für DB anbindung
 @Entity(tableName = "notes")
 public class Note {
+    @PrimaryKey
     private int id;
     private String title;
     private String content;
