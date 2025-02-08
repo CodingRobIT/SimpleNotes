@@ -65,4 +65,14 @@ dependencies {
     debugImplementation libs.androidx.ui.tooling
     debugImplementation libs.androidx.ui.test.manifest
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
+
+    // Für die DB
+    // Room Database dependencies
+    implementation "androidx.room:room-runtime:2.5.0"
+    annotationProcessor "androidx.room:room-compiler:2.5.0" // Für Java
+    // Wenn man Kotlin verwenden will, ersetzt man annotationProcessor mit kapt:
+    // kapt "androidx.room:room-compiler:2.5.0"
+
+    // Für LiveData und Coroutines
+    implementation "androidx.room:room-ktx:2.5.0" // Optional, falls du Kotlin und Coroutines verwendest
 }
