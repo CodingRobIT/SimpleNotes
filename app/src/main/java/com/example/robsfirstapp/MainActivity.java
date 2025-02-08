@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         noteContent = findViewById(R.id.noteContent);
         Button saveButton = findViewById(R.id.saveButton);
 
+        // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
             noteTitle.setText(note.getTitle());
@@ -43,14 +44,19 @@ public class MainActivity extends AppCompatActivity {
         String content = noteContent.getText().toString();
 
         if (selectedNote != null) {
-            selectedNote = new Note(selectedNote.getId(), title, content);
+            // Wenn eine Notiz ausgewählt ist, bearbeite sie
+            selectedNote.setTitle(title);
+            selectedNote.setContent(content);
+            adapter.notifyItemChanged(notes.indexOf(selectedNote));  // RecyclerView aktualisieren
         } else {
+            // Falls keine Notiz ausgewählt ist, füge eine neue hinzu
             notes.add(new Note(notes.size(), title, content));
+            adapter.notifyItemInserted(notes.size() - 1);  // RecyclerView aktualisieren
         }
 
-        adapter.notifyDataSetChanged();
+        // Felder zurücksetzen
         noteTitle.setText("");
         noteContent.setText("");
-        selectedNote = null;
+        selectedNote = null;  // Auswahl zurücksetzen
     }
 }

@@ -45,4 +45,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             title = itemView.findViewById(R.id.noteTitle);
         }
     }
+
+    public void updateNote(int position, String newTitle, String newContent) {
+        Note note = notes.get(position);
+        note.setTitle(newTitle);
+        note.setContent(newContent);
+        notifyItemChanged(position);  // RecyclerView updaten
+    }
+
 }
