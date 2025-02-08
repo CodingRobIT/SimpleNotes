@@ -1,54 +1,37 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <Space
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_weight="0"
-        tools:ignore="InefficientWeight" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="@string/your_note_txt"
-        android:gravity="center"/>
-
-    <EditText
-        android:id="@+id/editTextNote"
-        android:layout_width="match_parent"
-        android:layout_height="544dp"
-        android:hint="@string/user_note_hint_txt"
-        android:gravity="center"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:background="#DDD"/>
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-        <Space
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/noteTitle"
+            android:hint="Überschrift"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/noteContent"
+            android:hint="Deine Notiz"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:minHeight="200dp"/>
 
         <Button
             android:id="@+id/saveButton"
+            android:text="Speichern"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/save" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
+            android:layout_height="wrap_content"/>
     </LinearLayout>
-
 </LinearLayout>
-
