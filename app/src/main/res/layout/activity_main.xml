@@ -5,10 +5,10 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_width="100dp"
+        android:layout_width="121dp"
         android:layout_height="match_parent"
         android:background="#DDD"
-        android:ellipsize="end"/>
+        android:ellipsize="end" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -25,14 +25,29 @@
         <EditText
             android:id="@+id/noteContent"
             android:hint="Deine Notiz"
+            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="200dp"/>
 
+        <!-- Save Button -->
         <Button
             android:id="@+id/saveButton"
-            android:text="Speichern"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Speichern" />
+
+        <!-- Delete Button -->
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_constraintTop_toBottomOf="@id/noteContent"
+            android:layout_constraintEnd_toEndOf="parent"
+            android:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
+            android:enabled="false"
+            android:text="Delete" />
     </LinearLayout>
 </LinearLayout>
