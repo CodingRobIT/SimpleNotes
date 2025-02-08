@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             List<Note> notesFromDb = db.noteDao().getAllNotes();
             runOnUiThread(() -> {
+                notes.clear();
                 notes.addAll(notesFromDb);
                 adapter.notifyDataSetChanged();
             });
         }).start();
-
         // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
@@ -61,25 +63,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        String title = noteTitle.getText().toString();
-        String content = noteContent.getText().toString();
+        String title = noteTitle.getText().toString().trim(); // Entfernt unnötige Leerzeichen
+        String content = noteContent.getText().toString().trim(); // Entfernt unnötige Leerzeichen
 
-        if (selectedNote != null) {
-            selectedNote.setTitle(title);
-            selectedNote.setContent(content);
-
-            // Speichern der Änderungen in der Datenbank
-            new Thread(() -> db.noteDao().update(selectedNote)).start();
-        } else {
-            Note newNote = new Note(title, content);
-            new Thread(() -> db.noteDao().insert(newNote)).start();
+        if (content.isEmpty() && title.isEmpty()) {
+            // Zeigt eine Toast-Meldung an, wenn der Inhalt fehlt
+            runOnUiThread(() -> Toast.makeText(this, "Kein Inhalt!", Toast.LENGTH_SHORT).show());
+            return;
         }
 
-        // UI anpassen und Textfelder leeren
-        noteTitle.setText("");
-        noteContent.setText("");
-        selectedNote = null;
+        // Falls kein Titel vorhanden ist, generiere "Notiz001", "Notiz002" usw.
+        if (title.isEmpty()) {
+            title = generateDefaultTitle();
+            runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
+        }
+
+        String finalTitle = title;
+        new Thread(() -> {
+            if (selectedNote != null) {
+                // Bestehende Notiz aktualisieren
+                selectedNote.setTitle(finalTitle);
+                selectedNote.setContent(content);
+                db.noteDao().update(selectedNote);
+                runOnUiThread(() -> Toast.makeText(this, "Notiz Aktualisiert", Toast.LENGTH_SHORT).show());
+            } else {
+                // Neue Notiz speichern
+                Note newNote = new Note(finalTitle, content);
+                long newId = db.noteDao().insert(newNote); // Speichern in der DB
+                newNote.setId((int) newId); // ID setzen, falls Room sie automatisch vergibt
+
+                // Die Liste mit der neuen Notiz aktualisieren
+                notes.add(newNote);
+                runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
+            }
+
+            // UI-Update auf dem Hauptthread
+            runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+                noteTitle.setText(""); // Leert das Titelfeld
+                noteContent.setText(""); // Leert das Inhaltsfeld
+                selectedNote = null; // Setzt die ausgewählte Notiz zurück
+            });
+        }).start();
     }
+
 
     private void loadNotes() {
         notes.clear();
@@ -98,5 +125,29 @@ public class MainActivity extends AppCompatActivity {
             selectedNote = null;
             findViewById(R.id.deleteButton).setEnabled(false);
         }
+    }
+
+    private String generateDefaultTitle() {
+        int counter = 1;
+        String newTitle;
+
+        List<Note> existingNotes = db.noteDao().getAllNotes(); // Alle Notizen aus DB abrufen
+
+        do {
+            newTitle = String.format("Notiz%03d", counter); // Erstellt Notiz001, Notiz002, etc.
+            counter++;
+        } while (titleExists(existingNotes, newTitle));
+
+        return newTitle;
+    }
+
+    // Hilfsmethode: Prüft, ob der Titel bereits existiert
+    private boolean titleExists(List<Note> notes, String title) {
+        for (Note note : notes) {
+            if (note.getTitle().equals(title)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
