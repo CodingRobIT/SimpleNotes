@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Datenbank initialisieren
         db = Room.databaseBuilder(getApplicationContext(), NoteDatabase.class, "notes_database").allowMainThreadQueries().build();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         Button newNoteButton = findViewById(R.id.newNoteButton);
         newNoteButton.setOnClickListener(v -> createNewNote());
 
-        // Lade Notizen aus der DB
         new Thread(() -> {
             List<Note> notesFromDb = db.noteDao().getAllNotes();
             runOnUiThread(() -> {
@@ -50,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             });
         }).start();
-        // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
             noteTitle.setText(note.getTitle());
@@ -68,16 +65,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        String title = noteTitle.getText().toString().trim(); // Entfernt unnötige Leerzeichen
-        String content = noteContent.getText().toString().trim(); // Entfernt unnötige Leerzeichen
+        String title = noteTitle.getText().toString().trim();
+        String content = noteContent.getText().toString().trim();
 
         if (content.isEmpty() && title.isEmpty()) {
-            // Zeigt eine Toast-Meldung an, wenn der Inhalt fehlt
             runOnUiThread(() -> Toast.makeText(this, "Kein Inhalt!", Toast.LENGTH_SHORT).show());
             return;
         }
 
-        // Falls kein Titel vorhanden ist, generiere "Notiz001", "Notiz002" usw.
         if (title.isEmpty()) {
             title = generateDefaultTitle();
             runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
@@ -86,32 +81,23 @@ public class MainActivity extends AppCompatActivity {
         String finalTitle = title;
         new Thread(() -> {
             if (selectedNote != null) {
-                // Bestehende Notiz aktualisieren
                 selectedNote.setTitle(finalTitle);
                 selectedNote.setContent(content);
                 db.noteDao().update(selectedNote);
                 runOnUiThread(() -> Toast.makeText(this, "Notiz Aktualisiert", Toast.LENGTH_SHORT).show());
             } else {
-                // Neue Notiz speichern
                 Note newNote = new Note(finalTitle, content);
-                long newId = db.noteDao().insert(newNote); // Speichern in der DB
-                newNote.setId((int) newId); // ID setzen, falls Room sie automatisch vergibt
+                long newId = db.noteDao().insert(newNote);
+                newNote.setId((int) newId);
 
-                // Die Liste mit der neuen Notiz aktualisieren
                 notes.add(newNote);
-                selectedNote = newNote; // Setzt die neue Notiz als aktuell ausgewählte
+                selectedNote = newNote;
                 runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
             }
 
-            // UI-Update auf dem Hauptthread
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
 
-                // Dieser block wird ersetzt denn nach dem Speichern wird in diesem Block eine neue Notiz erstellt
-//                noteTitle.setText(""); // Leert das Titelfeld
-//                noteContent.setText(""); // Leert das Inhaltsfeld
-//                selectedNote = null; // Setzt die ausgewählte Notiz zurück
-                // Jetztn Bleibt man in der Gespeicherten Notiz und eine Neue muss über den "Neue Notiz" button erstellt werden
                 noteTitle.setText(selectedNote.getTitle());
                 noteContent.setText(selectedNote.getContent());
             });
@@ -119,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNewNote() {
-        // Leere Felder setzen, um eine neue Notiz zu erstellen
         noteTitle.setText("");
         noteContent.setText("");
         selectedNote = null;
@@ -149,17 +134,16 @@ public class MainActivity extends AppCompatActivity {
         int counter = 1;
         String newTitle;
 
-        List<Note> existingNotes = db.noteDao().getAllNotes(); // Alle Notizen aus DB abrufen
+        List<Note> existingNotes = db.noteDao().getAllNotes();
 
         do {
-            newTitle = String.format("Notiz%03d", counter); // Erstellt Notiz001, Notiz002, etc.
+            newTitle = String.format("Notiz%03d", counter);
             counter++;
         } while (titleExists(existingNotes, newTitle));
 
         return newTitle;
     }
 
-    // Hilfsmethode: Prüft, ob der Titel bereits existiert
     private boolean titleExists(List<Note> notes, String title) {
         for (Note note : notes) {
             if (note.getTitle().equals(title)) {
