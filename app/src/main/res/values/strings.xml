@@ -4,4 +4,5 @@
     <string name="user_note_hint_txt">Schreibe hier deine Notiz</string>
     <string name="your_note_txt">Namen Deine Notiz</string>
     <string name="delete">Delete</string>
+    <string name="newNote">Neue Notiz</string>
 </resources>

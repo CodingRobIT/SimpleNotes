@@ -57,5 +57,13 @@
                 android:enabled="false"
                 android:text="@string/delete" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/newNoteButton"
+            android:layout_width="105dp"
+            android:layout_height="wrap_content"
+            android:text="@string/newNote" />
+
+
     </LinearLayout>
 </LinearLayout>

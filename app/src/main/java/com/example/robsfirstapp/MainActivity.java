@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
         noteContent = findViewById(R.id.noteContent);
         Button saveButton = findViewById(R.id.saveButton);
         Button deleteButton = findViewById(R.id.deleteButton);
+        Button newNoteButton = findViewById(R.id.newNoteButton);
+        newNoteButton.setOnClickListener(v -> createNewNote());
 
         // Lade Notizen aus der DB
         new Thread(() -> {
@@ -94,17 +96,30 @@ public class MainActivity extends AppCompatActivity {
 
                 // Die Liste mit der neuen Notiz aktualisieren
                 notes.add(newNote);
+                selectedNote = newNote; // Setzt die neue Notiz als aktuell ausgewählte
                 runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
             }
 
             // UI-Update auf dem Hauptthread
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
-                noteTitle.setText(""); // Leert das Titelfeld
-                noteContent.setText(""); // Leert das Inhaltsfeld
-                selectedNote = null; // Setzt die ausgewählte Notiz zurück
+
+                // Dieser block wird ersetzt denn nach dem Speichern wird in diesem Block eine neue Notiz erstellt
+//                noteTitle.setText(""); // Leert das Titelfeld
+//                noteContent.setText(""); // Leert das Inhaltsfeld
+//                selectedNote = null; // Setzt die ausgewählte Notiz zurück
+                // Jetztn Bleibt man in der Gespeicherten Notiz und eine Neue muss über den "Neue Notiz" button erstellt werden
+                noteTitle.setText(selectedNote.getTitle());
+                noteContent.setText(selectedNote.getContent());
             });
         }).start();
+    }
+
+    private void createNewNote() {
+        // Leere Felder setzen, um eine neue Notiz zu erstellen
+        noteTitle.setText("");
+        noteContent.setText("");
+        selectedNote = null;
     }
 
 
