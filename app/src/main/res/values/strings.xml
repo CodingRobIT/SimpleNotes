@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RS Notizenbuch</string>
+    <string name="app_name">RS Notizbuch</string>
     <string name="save">Speichern</string>
     <string name="user_note_hint_txt">Schreibe hier deine Notiz</string>
     <string name="your_note_txt">Namen Deine Notiz</string>
