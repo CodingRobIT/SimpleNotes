@@ -1,7 +1,6 @@
-package com.example.robsfirstapp;
+package com.example.robsfirstapp.ui;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,6 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
+
+import com.example.robsfirstapp.R;
+import com.example.robsfirstapp.database.NoteDatabase;
+import com.example.robsfirstapp.model.Note;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.robsfirstapp;
+package com.example.robsfirstapp.model;
 
 // Fürt die DB anbindung
 import androidx.room.Entity;
