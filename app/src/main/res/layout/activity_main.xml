@@ -3,14 +3,14 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <!-- RecyclerView mit Standardbreite -->
+    <!-- RecyclerView standard width -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="121dp"
         android:layout_height="match_parent"
         android:background="#DDD" />
 
-    <!-- Ziehgriff für Breitenanpassung -->
+    <!-- Pull handle for width adjustment -->
     <View
         android:id="@+id/dragHandle"
         android:layout_width="10dp"
