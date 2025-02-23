@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
         }
 
-        // Hier den Titel auf einen einzigartigen Namen setzen, wenn er bereits existiert
         String finalTitle = generateUniqueTitle(title);
 
         new Thread(() -> {
@@ -179,12 +178,10 @@ public class MainActivity extends AppCompatActivity {
         int counter = 1;
         String newTitle = title;
 
-        // Alle bestehenden Notizen holen
         List<Note> existingNotes = db.noteDao().getAllNotes();
 
-        // Solange der Titel existiert, Nummer erhöhen und prüfen
         while (titleExists(existingNotes, newTitle)) {
-            newTitle = String.format("%s%04d", title, counter);  // Beispiel: "Notiz 0001", "Notiz 0002"
+            newTitle = String.format("%s%04d", title, counter);
             counter++;
         }
 
