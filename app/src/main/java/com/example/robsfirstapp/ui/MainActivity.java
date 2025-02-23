@@ -49,14 +49,7 @@ public class MainActivity extends AppCompatActivity {
         newNoteButton.setOnClickListener(v -> createNewNote());
 
         // Lade Notizen aus der DB
-        new Thread(() -> {
-            List<Note> notesFromDb = db.noteDao().getAllNotes();
-            runOnUiThread(() -> {
-                notes.clear();
-                notes.addAll(notesFromDb);
-                adapter.notifyDataSetChanged();
-            });
-        }).start();
+        loadAllNotes();
         // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
@@ -71,42 +64,19 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> saveNote());
         deleteButton.setOnClickListener(v -> deleteNote());
 
-        loadNotes();
-
         // Drag-Logik hinzugefügt um größe des RecyclerViews anzupassen
         dragHandler(dragHandle, recyclerView);
     }
 
-    private static void dragHandler(View dragHandle, RecyclerView recyclerView) {
-        dragHandle.setOnTouchListener(new View.OnTouchListener() {
-            private int minWidth = 80;  // Mindestbreite für RecyclerView
-            private int maxWidth = 800; // Maximale Breite für RecyclerView
-            private int lastX;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        lastX = (int) event.getRawX(); // Startposition merken
-                        return true;
-
-                    case MotionEvent.ACTION_MOVE:
-                        int deltaX = (int) event.getRawX() - lastX; // Bewegung berechnen
-                        lastX = (int) event.getRawX(); // Position aktualisieren
-
-                        // Neue Breite berechnen (mit Mindest- & Maximalwert)
-                        int newWidth = recyclerView.getWidth() + deltaX;
-                        newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-
-                        // Neue Breite setzen
-                        ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
-                        params.width = newWidth;
-                        recyclerView.setLayoutParams(params);
-                        return true;
-                }
-                return false;
-            }
-        });
+    private void loadAllNotes() {
+        new Thread(() -> {
+            List<Note> notesFromDb = db.noteDao().getAllNotes();
+            runOnUiThread(() -> {
+                notes.clear();
+                notes.addAll(notesFromDb);
+                adapter.notifyDataSetChanged();
+            });
+        }).start();
     }
 
     private void saveNote() {
@@ -159,13 +129,6 @@ public class MainActivity extends AppCompatActivity {
         selectedNote = null;
     }
 
-
-    private void loadNotes() {
-        notes.clear();
-        notes.addAll(db.noteDao().getAllNotes());
-        adapter.notifyDataSetChanged();
-    }
-
     private void deleteNote() {
         if (selectedNote != null) {
             db.noteDao().delete(selectedNote);
@@ -201,5 +164,37 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    private static void dragHandler(View dragHandle, RecyclerView recyclerView) {
+        dragHandle.setOnTouchListener(new View.OnTouchListener() {
+            private int minWidth = 80;  // Mindestbreite für RecyclerView
+            private int maxWidth = 800; // Maximale Breite für RecyclerView
+            private int lastX;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = (int) event.getRawX(); // Startposition merken
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        int deltaX = (int) event.getRawX() - lastX; // Bewegung berechnen
+                        lastX = (int) event.getRawX(); // Position aktualisieren
+
+                        // Neue Breite berechnen (mit Mindest- & Maximalwert)
+                        int newWidth = recyclerView.getWidth() + deltaX;
+                        newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+                        // Neue Breite setzen
+                        ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
+                        params.width = newWidth;
+                        recyclerView.setLayoutParams(params);
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 }
