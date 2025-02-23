@@ -1,0 +1,6 @@
+<!-- res/drawable/button_save.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#6A0DAD"/> <!-- Dunkelviolette Farbe -->
+    <corners android:radius="4dp"/> <!-- Abgerundete Ecken -->
+    <padding android:left="4dp" android:top="4dp" android:right="4dp" android:bottom="4dp"/> <!-- Polsterung für schöneres Layout -->
+</shape>
