@@ -112,8 +112,9 @@ public class MainActivity extends AppCompatActivity {
 //                noteContent.setText(""); // Leert das Inhaltsfeld
 //                selectedNote = null; // Setzt die ausgewählte Notiz zurück
                 // Jetztn Bleibt man in der Gespeicherten Notiz und eine Neue muss über den "Neue Notiz" button erstellt werden
-                noteTitle.setText(selectedNote.getTitle());
-                noteContent.setText(selectedNote.getContent());
+                // Diese zwei Zeilen verursachten den Bug, dass beim Speichern die Notiz neu geladen wird und der Cursor somit an den Anfang springt.
+//                noteTitle.setText(selectedNote.getTitle());
+//                noteContent.setText(selectedNote.getContent());
             });
         }).start();
     }
