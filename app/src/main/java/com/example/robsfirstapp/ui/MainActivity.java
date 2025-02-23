@@ -21,51 +21,96 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private List<Note> notes = new ArrayList<>();
-    private NoteAdapter adapter;
-    private EditText noteTitle, noteContent;
-    private Note selectedNote = null;
-
+    // Klassenvariablen für UI-Elemente
     private NoteDatabase db;
+    private RecyclerView recyclerView;
+    private View dragHandle;
+    private EditText noteTitle, noteContent;
+    private Button saveButton, deleteButton, newNoteButton;
+
+    // Aktuell ausgewählte Notiz
+    private Note selectedNote = null;
+    private NoteAdapter adapter;
+    private List<Note> notes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialisiert alle UI-Elemente und die Datenbank
+        initViews();
+
+        // Lädt alle gespeicherten Notizen aus der Datenbank
+        loadAllNotes();
+
+        // Setzt den Adapter für die Notizen-Liste und lädt die ausgewählte Notiz
+        loadSelectedNote(deleteButton);
+
+        // Setzt das RecyclerView auf (die Liste mit den Notizen)
+        setupRecyclerView();
+
+        // Fügt Klick-Listener für Buttons hinzu
+        initListeners();
+
+        // Aktiviert das Drag-Handle für die Breitenanpassung der Notizliste
+        dragHandler();
+    }
+
+    /**
+     * Initialisiert alle UI-Elemente und die Datenbank.
+     */
+    private void initViews() {
         // Datenbank initialisieren
-        db = Room.databaseBuilder(getApplicationContext(), NoteDatabase.class, "notes_database").allowMainThreadQueries().build();
+        db = Room.databaseBuilder(getApplicationContext(), NoteDatabase.class, "notes_database")
+                .allowMainThreadQueries() // Haupt-Thread-Zugriff erlauben (nicht ideal, aber für kleine Apps okay)
+                .build();
 
         // Das ist die Sidebar mit allen Notizen
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        // Das ist der DragHandle für die Breitenanpassung
-        View dragHandle = findViewById(R.id.dragHandle);
+        recyclerView = findViewById(R.id.recyclerView);
 
+        // Das ist der DragHandle für die Breitenanpassung der Notizliste
+        dragHandle = findViewById(R.id.dragHandle);
+
+        // Eingabefelder für Titel und Inhalt der Notiz
         noteTitle = findViewById(R.id.noteTitle);
         noteContent = findViewById(R.id.noteContent);
-        Button saveButton = findViewById(R.id.saveButton);
-        Button deleteButton = findViewById(R.id.deleteButton);
-        Button newNoteButton = findViewById(R.id.newNoteButton);
+
+        // Buttons für Speichern, Löschen und neue Notiz erstellen
+        saveButton = findViewById(R.id.saveButton);
+        deleteButton = findViewById(R.id.deleteButton);
+        newNoteButton = findViewById(R.id.newNoteButton);
+    }
+
+    /**
+     * Setzt das RecyclerView auf (die Liste mit den gespeicherten Notizen).
+     */
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // Vertikale Liste
+        recyclerView.setAdapter(adapter); // Adapter setzt die Notizen in die Liste
+    }
+
+    /**
+     * Fügt Klick-Listener für Buttons hinzu.
+     */
+    private void initListeners() {
+        // Erstellt eine neue Notiz, wenn der Button geklickt wird
         newNoteButton.setOnClickListener(v -> createNewNote());
 
-        // Lade Notizen aus der DB
-        loadAllNotes();
-        // Adapter setzen und Notiz beim Klicken auf ein Element auswählen
+        // Speichert die aktuell geöffnete Notiz
+        saveButton.setOnClickListener(v -> saveNote());
+
+        // Löscht die aktuell geöffnete Notiz
+        deleteButton.setOnClickListener(v -> deleteNote());
+    }
+
+    private void loadSelectedNote(Button deleteButton) {
         adapter = new NoteAdapter(notes, note -> {
             selectedNote = note;
             noteTitle.setText(note.getTitle());
             noteContent.setText(note.getContent());
             deleteButton.setEnabled(true);
         });
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-
-        saveButton.setOnClickListener(v -> saveNote());
-        deleteButton.setOnClickListener(v -> deleteNote());
-
-        // Drag-Logik hinzugefügt um größe des RecyclerViews anzupassen
-        dragHandler(dragHandle, recyclerView);
     }
 
     private void loadAllNotes() {
@@ -166,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private static void dragHandler(View dragHandle, RecyclerView recyclerView) {
+    private void dragHandler() {
         dragHandle.setOnTouchListener(new View.OnTouchListener() {
             private int minWidth = 80;  // Mindestbreite für RecyclerView
             private int maxWidth = 800; // Maximale Breite für RecyclerView
