@@ -106,14 +106,6 @@ public class MainActivity extends AppCompatActivity {
             // UI-Update auf dem Hauptthread
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
-
-                // Dieser block wird ersetzt denn nach dem Speichern wird in diesem Block eine neue Notiz erstellt
-//                noteTitle.setText(""); // Leert das Titelfeld
-//                noteContent.setText(""); // Leert das Inhaltsfeld
-//                selectedNote = null; // Setzt die ausgewählte Notiz zurück
-                // Jetztn Bleibt man in der Gespeicherten Notiz und eine Neue muss über den "Neue Notiz" button erstellt werden
-                noteTitle.setText(selectedNote.getTitle());
-                noteContent.setText(selectedNote.getContent());
             });
         }).start();
     }
