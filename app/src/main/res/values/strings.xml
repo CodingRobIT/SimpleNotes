@@ -3,6 +3,6 @@
     <string name="save">Speichern</string>
     <string name="user_note_hint_txt">Schreibe hier deine Notiz</string>
     <string name="your_note_txt">Namen Deiner Notiz</string>
-    <string name="delete">Delete</string>
+    <string name="delete">Löschen</string>
     <string name="newNote">Neue Notiz</string>
 </resources>
