@@ -115,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
         }
 
-        String finalTitle = title;
+        // Hier den Titel auf einen einzigartigen Namen setzen, wenn er bereits existiert
+        String finalTitle = generateUniqueTitle(title);
+
         new Thread(() -> {
             if (selectedNote != null) {
                 selectedNote.setTitle(finalTitle);
@@ -135,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 adapter.notifyDataSetChanged();
             });
+
         }).start();
     }
 
@@ -157,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // check for Titles that already exist START
     private String generateDefaultTitle() {
         int counter = 1;
         String newTitle;
@@ -171,7 +175,23 @@ public class MainActivity extends AppCompatActivity {
         return newTitle;
     }
 
-    // Auxiliary method: Checks whether the title already exists. Only for automatically created titles. Manually created titles can have the same name
+    private String generateUniqueTitle(String title) {
+        int counter = 1;
+        String newTitle = title;
+
+        // Alle bestehenden Notizen holen
+        List<Note> existingNotes = db.noteDao().getAllNotes();
+
+        // Solange der Titel existiert, Nummer erhöhen und prüfen
+        while (titleExists(existingNotes, newTitle)) {
+            newTitle = String.format("%s%04d", title, counter);  // Beispiel: "Notiz 0001", "Notiz 0002"
+            counter++;
+        }
+
+        return newTitle;
+    }
+
+    // Auxiliary method: Checks whether the title already exists.
     private boolean titleExists(List<Note> notes, String title) {
         for (Note note : notes) {
             if (note.getTitle().equals(title)) {
@@ -180,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+    // check for Titles that already exist END
 
     private void dragHandler() {
         dragHandle.setOnTouchListener(new View.OnTouchListener() {
