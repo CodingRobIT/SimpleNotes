@@ -54,7 +54,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         Note note = notes.get(position);
         note.setTitle(newTitle);
         note.setContent(newContent);
-        notifyItemChanged(position);  // RecyclerView updaten
+        notifyItemChanged(position);
     }
 
 }

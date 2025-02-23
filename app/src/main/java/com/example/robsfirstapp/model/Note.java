@@ -1,11 +1,9 @@
 package com.example.robsfirstapp.model;
 
-// Fürt die DB anbindung
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 // -------------------------------------
 
-// Annotation für DB anbindung
 @Entity(tableName = "notes")
 public class Note {
     @PrimaryKey(autoGenerate = true)
@@ -26,11 +24,6 @@ public class Note {
         this.id = id;
     }
 
-//    public String getTitle() { // Old getTitel() method who works but i try also the new one
-//        return title != null && !title.isEmpty() ? title : content.substring(0, Math.min(10, content.length()));
-//    }
-
-    // Getter
     public String getTitle() {
         return title;
     }

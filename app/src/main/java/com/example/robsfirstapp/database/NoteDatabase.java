@@ -12,17 +12,15 @@ public abstract class NoteDatabase extends RoomDatabase {
 
     private static volatile NoteDatabase INSTANCE;
 
-    // DAO für den Zugriff auf Notizen
     public abstract NoteDao noteDao();
 
-    // Singleton-Pattern, um sicherzustellen, dass nur eine Instanz der DB existiert
     public static NoteDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (NoteDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     NoteDatabase.class, "note_database")
-                            .fallbackToDestructiveMigration() // Optional, um bei einer Migration alte DB zu löschen
+                            .fallbackToDestructiveMigration() // Optional, to delete old database on migration
                             .build();
                 }
             }
