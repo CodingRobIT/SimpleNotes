@@ -137,10 +137,6 @@ public class MainActivity extends AppCompatActivity {
         String title = noteTitle.getText().toString().trim();
         String content = noteContent.getText().toString().trim();
 
-        if (title.isEmpty()) {
-            title = generateDefaultTitle();
-        }
-
         String finalTitle = generateUniqueTitle(title);
 
         new Thread(() -> {
