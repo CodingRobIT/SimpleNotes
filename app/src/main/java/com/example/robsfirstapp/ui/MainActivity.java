@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private View dragHandle;
     private EditText noteTitle, noteContent;
-    private Button saveButton, deleteButton, newNoteButton;
+    private Button deleteButton, newNoteButton;
 
     private Note selectedNote = null;
     private NoteAdapter adapter;
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         noteTitle = findViewById(R.id.noteTitle);
         noteContent = findViewById(R.id.noteContent);
 
-        saveButton = findViewById(R.id.saveButton);
         deleteButton = findViewById(R.id.deleteButton);
         newNoteButton = findViewById(R.id.newNoteButton);
     }
@@ -81,8 +79,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initListeners() {
         newNoteButton.setOnClickListener(v -> createNewNote());
-        saveButton.setOnClickListener(v -> saveNote());
         deleteButton.setOnClickListener(v -> deleteNote());
+        // will select whole Title on click
+        noteTitle.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                noteTitle.post(() -> noteTitle.selectAll());
+            }
+        });
+        noteTitle.setOnClickListener(v -> noteTitle.selectAll()); // need this also unsure why it doesn't work without
 
         autoSaveOnTextChange(noteTitle);
         autoSaveOnTextChange(noteContent);

@@ -47,13 +47,13 @@
             android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
-            <!-- Save Button -->
+            <!-- New Note Button -->
             <Button
-                android:id="@+id/saveButton"
+                android:id="@+id/newNoteButton"
                 android:layout_width="105dp"
                 android:layout_height="35dp"
                 android:background="@drawable/button_standard"
-                android:text="@string/save"
+                android:text="@string/newNote"
                 android:textColor="#FFFFFF" />
 
             <Space
@@ -71,17 +71,6 @@
                 android:text="@string/delete"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
-
-        <!-- New Note Button -->
-        <Button
-            android:id="@+id/newNoteButton"
-            android:layout_width="105dp"
-            android:layout_height="35dp"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/button_standard"
-            android:text="@string/newNote"
-            android:textColor="#FFFFFF" />
-
 
     </LinearLayout>
 </LinearLayout>
