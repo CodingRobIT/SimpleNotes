@@ -51,7 +51,7 @@
             <Button
                 android:id="@+id/saveButton"
                 android:layout_width="105dp"
-                android:layout_height="wrap_content"
+                android:layout_height="35dp"
                 android:background="@drawable/button_standard"
                 android:text="@string/save"
                 android:textColor="#FFFFFF" />
@@ -65,7 +65,7 @@
             <Button
                 android:id="@+id/deleteButton"
                 android:layout_width="105dp"
-                android:layout_height="wrap_content"
+                android:layout_height="35dp"
                 android:background="@drawable/button_standard"
                 android:enabled="false"
                 android:text="@string/delete"
@@ -76,7 +76,7 @@
         <Button
             android:id="@+id/newNoteButton"
             android:layout_width="105dp"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
             android:layout_marginTop="6dp"
             android:background="@drawable/button_standard"
             android:text="@string/newNote"
