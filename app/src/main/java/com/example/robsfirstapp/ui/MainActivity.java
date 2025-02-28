@@ -33,8 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private NoteAdapter adapter;
     private List<Note> notes = new ArrayList<>();
 
-    private String lastSavedTitle = "";
-    private String lastSavedContent = "";
+    private boolean isLoadingNote = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,36 +84,37 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> saveNote());
         deleteButton.setOnClickListener(v -> deleteNote());
 
-        // Automatisches Speichern bei Änderungen im Titel
         autoSaveOnTextChange(noteTitle);
-
-        // Automatisches Speichern bei Änderungen im Inhalt
         autoSaveOnTextChange(noteContent);
     }
 
-    private void autoSaveOnTextChange(EditText noteTitle) {
-        noteTitle.addTextChangedListener(new TextWatcher() {
+    private void autoSaveOnTextChange(EditText textToEdit) {
+        textToEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                saveNote(); // Speichert automatisch, wenn sich der Titel ändert
+                if (!isLoadingNote) {
+                    saveNote();
+                }
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
     private void loadSelectedNote(Button deleteButton) {
         adapter = new NoteAdapter(notes, note -> {
+            isLoadingNote = true; // TextWatcher deaktivieren
+
             selectedNote = note;
             noteTitle.setText(note.getTitle());
             noteContent.setText(note.getContent());
             deleteButton.setEnabled(true);
+
+            isLoadingNote = false; // TextWatcher wieder aktivieren
         });
     }
 
@@ -133,22 +133,8 @@ public class MainActivity extends AppCompatActivity {
         String title = noteTitle.getText().toString().trim();
         String content = noteContent.getText().toString().trim();
 
-        // Vermeidung unnötiger Speicherungen bei identischem Text
-        if (title.equals(lastSavedTitle) && content.equals(lastSavedContent)) {
-            return;
-        }
-
-        lastSavedTitle = title;
-        lastSavedContent = content;
-
-//        if (content.isEmpty() && title.isEmpty()) {
-//            runOnUiThread(() -> Toast.makeText(this, "Kein Inhalt!", Toast.LENGTH_SHORT).show());
-//            return;
-//        }
-
         if (title.isEmpty()) {
             title = generateDefaultTitle();
-//            runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
         }
 
         String finalTitle = generateUniqueTitle(title);
@@ -158,7 +144,6 @@ public class MainActivity extends AppCompatActivity {
                 selectedNote.setTitle(finalTitle);
                 selectedNote.setContent(content);
                 db.noteDao().update(selectedNote);
-//                runOnUiThread(() -> Toast.makeText(this, "Notiz Aktualisiert", Toast.LENGTH_SHORT).show());
             } else {
                 Note newNote = new Note(finalTitle, content);
                 long newId = db.noteDao().insert(newNote);
@@ -166,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
 
                 notes.add(newNote);
                 selectedNote = newNote;
-//                runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
             }
 
             runOnUiThread(() -> {
@@ -178,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void createNewNote() {
         selectedNote = null;
-        noteTitle.setText("");
+        noteTitle.setText(generateDefaultTitle());
         noteContent.setText("");
     }
 
