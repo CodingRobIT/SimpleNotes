@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
             notes.remove(selectedNote);
             adapter.notifyDataSetChanged();
 
-            noteTitle.setText("");
             noteContent.setText("");
             selectedNote = null;
             findViewById(R.id.deleteButton).setEnabled(false);
