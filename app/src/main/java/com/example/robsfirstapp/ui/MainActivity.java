@@ -33,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private NoteAdapter adapter;
     private List<Note> notes = new ArrayList<>();
 
+    private String lastSavedTitle = "";
+    private String lastSavedContent = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,14 +133,22 @@ public class MainActivity extends AppCompatActivity {
         String title = noteTitle.getText().toString().trim();
         String content = noteContent.getText().toString().trim();
 
-        if (content.isEmpty() && title.isEmpty()) {
-            runOnUiThread(() -> Toast.makeText(this, "Kein Inhalt!", Toast.LENGTH_SHORT).show());
+        // Vermeidung unnötiger Speicherungen bei identischem Text
+        if (title.equals(lastSavedTitle) && content.equals(lastSavedContent)) {
             return;
         }
 
+        lastSavedTitle = title;
+        lastSavedContent = content;
+
+//        if (content.isEmpty() && title.isEmpty()) {
+//            runOnUiThread(() -> Toast.makeText(this, "Kein Inhalt!", Toast.LENGTH_SHORT).show());
+//            return;
+//        }
+
         if (title.isEmpty()) {
             title = generateDefaultTitle();
-            runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
+//            runOnUiThread(() -> Toast.makeText(this, "Kein Titel, Titel wurde Automatisch generierd", Toast.LENGTH_SHORT).show());
         }
 
         String finalTitle = generateUniqueTitle(title);
@@ -147,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 selectedNote.setTitle(finalTitle);
                 selectedNote.setContent(content);
                 db.noteDao().update(selectedNote);
-                runOnUiThread(() -> Toast.makeText(this, "Notiz Aktualisiert", Toast.LENGTH_SHORT).show());
+//                runOnUiThread(() -> Toast.makeText(this, "Notiz Aktualisiert", Toast.LENGTH_SHORT).show());
             } else {
                 Note newNote = new Note(finalTitle, content);
                 long newId = db.noteDao().insert(newNote);
@@ -155,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
                 notes.add(newNote);
                 selectedNote = newNote;
-                runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
+//                runOnUiThread(() -> Toast.makeText(this, "Notiz Gespeichert", Toast.LENGTH_SHORT).show());
             }
 
             runOnUiThread(() -> {
@@ -166,9 +177,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNewNote() {
+        selectedNote = null;
         noteTitle.setText("");
         noteContent.setText("");
-        selectedNote = null;
     }
 
     private void deleteNote() {
@@ -206,12 +217,30 @@ public class MainActivity extends AppCompatActivity {
         List<Note> existingNotes = db.noteDao().getAllNotes();
 
         while (titleExists(existingNotes, newTitle)) {
-            newTitle = String.format("%s%04d", title, counter);
+            // Wenn die existierende Notiz die gleiche ID hat, ignoriere sie
+            Note existingNote = getNoteByTitle(existingNotes, newTitle);
+            if (existingNote != null && existingNote.getId() == (selectedNote != null ? selectedNote.getId() : -1)) {
+                break;
+            }
+
+            // Generiere neuen Titel mit Zähler
+            newTitle = String.format("%s%03d", title, counter);
             counter++;
         }
 
         return newTitle;
     }
+
+    // Hilfsmethode, um eine Notiz basierend auf dem Titel zu finden
+    private Note getNoteByTitle(List<Note> notes, String title) {
+        for (Note note : notes) {
+            if (note.getTitle().equals(title)) {
+                return note;
+            }
+        }
+        return null;
+    }
+
 
     // Auxiliary method: Checks whether the title already exists.
     private boolean titleExists(List<Note> notes, String title) {
