@@ -1,6 +1,8 @@
 package com.example.robsfirstapp.ui;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +81,29 @@ public class MainActivity extends AppCompatActivity {
         newNoteButton.setOnClickListener(v -> createNewNote());
         saveButton.setOnClickListener(v -> saveNote());
         deleteButton.setOnClickListener(v -> deleteNote());
+
+        // Automatisches Speichern bei Änderungen im Titel
+        autoSaveOnTextChange(noteTitle);
+
+        // Automatisches Speichern bei Änderungen im Inhalt
+        autoSaveOnTextChange(noteContent);
+    }
+
+    private void autoSaveOnTextChange(EditText noteTitle) {
+        noteTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                saveNote(); // Speichert automatisch, wenn sich der Titel ändert
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     private void loadSelectedNote(Button deleteButton) {
