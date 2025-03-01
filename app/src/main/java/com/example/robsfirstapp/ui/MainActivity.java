@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Note selectedNote = null;
     private NoteAdapter adapter;
     private List<Note> notes = new ArrayList<>();
-    private boolean isLoadingNote = false;
+    private boolean isTextWatcherDisabled = false;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!isLoadingNote) {
+                if (!isTextWatcherDisabled) {
                     saveNote();
                 }
             }
@@ -112,14 +112,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadSelectedNote(Button deleteButton) {
         adapter = new NoteAdapter(notes, note -> {
-            isLoadingNote = true; // TextWatcher deaktivieren
+            isTextWatcherDisabled = true; // TextWatcher deaktivieren
 
             selectedNote = note;
             noteTitle.setText(note.getTitle());
             noteContent.setText(note.getContent());
             deleteButton.setEnabled(true);
 
-            isLoadingNote = false; // TextWatcher wieder aktivieren
+            isTextWatcherDisabled = false; // TextWatcher wieder aktivieren
         });
     }
 
@@ -137,12 +137,6 @@ public class MainActivity extends AppCompatActivity {
     private void saveNote() {
         String title = noteTitle.getText().toString().trim();
         String content = noteContent.getText().toString().trim();
-
-//        if (title.isEmpty() && selectedNote == null) {
-//            title = generateDefaultTitle();
-//            noteTitle.setText(title);
-//            Toast.makeText(MainActivity.this, "Notiz ohne Titel \n neuer Titel erstellt", Toast.LENGTH_SHORT).show();
-//        }
 
         String finalTitle = generateUniqueTitle(title);
 
@@ -179,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
             notes.remove(selectedNote);
             adapter.notifyDataSetChanged();
 
-            isLoadingNote = true; // TextWatcher deaktivieren
+            isTextWatcherDisabled = true; // TextWatcher deaktivieren
             selectedNote = null;
             noteTitle.setText(generateDefaultTitle());
             noteContent.setText("");
-            isLoadingNote = false; // TextWatcher wieder aktivieren
+            isTextWatcherDisabled = false; // TextWatcher wieder aktivieren
             findViewById(R.id.deleteButton).setEnabled(false);
         }
     }
