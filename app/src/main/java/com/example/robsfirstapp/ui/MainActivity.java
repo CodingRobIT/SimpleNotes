@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 noteTitle.post(() -> noteTitle.selectAll());
             }
         });
-        noteTitle.setOnClickListener(v -> noteTitle.selectAll()); // need this also unsure why it doesn't work without
+        noteTitle.setOnClickListener(v -> noteTitle.selectAll()); // need this also unsure why it doesn't work without or alone
 
         autoSaveOnTextChange(noteTitle);
         autoSaveOnTextChange(noteContent);
@@ -137,6 +137,12 @@ public class MainActivity extends AppCompatActivity {
         String title = noteTitle.getText().toString().trim();
         String content = noteContent.getText().toString().trim();
 
+//        if (title.isEmpty() && selectedNote == null) {
+//            title = generateDefaultTitle();
+//            noteTitle.setText(title);
+//            Toast.makeText(MainActivity.this, "Notiz ohne Titel \n neuer Titel erstellt", Toast.LENGTH_SHORT).show();
+//        }
+
         String finalTitle = generateUniqueTitle(title);
 
         new Thread(() -> {
@@ -172,8 +178,11 @@ public class MainActivity extends AppCompatActivity {
             notes.remove(selectedNote);
             adapter.notifyDataSetChanged();
 
-            noteContent.setText("");
+            isLoadingNote = true; // TextWatcher deaktivieren
             selectedNote = null;
+            noteTitle.setText(generateDefaultTitle());
+            noteContent.setText("");
+            isLoadingNote = false; // TextWatcher wieder aktivieren
             findViewById(R.id.deleteButton).setEnabled(false);
         }
     }
@@ -185,7 +194,13 @@ public class MainActivity extends AppCompatActivity {
 
         List<Note> existingNotes = db.noteDao().getAllNotes();
 
+        // Entferne die eigene Notiz aus der Liste
+        if (selectedNote != null) {
+            existingNotes.removeIf(note -> note.getId() == selectedNote.getId());
+        }
+
         do {
+
             newTitle = String.format("Notiz%03d", counter);
             counter++;
         } while (titleExists(existingNotes, newTitle));
