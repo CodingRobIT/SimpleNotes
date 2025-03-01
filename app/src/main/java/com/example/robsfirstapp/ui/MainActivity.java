@@ -20,6 +20,8 @@ import com.example.robsfirstapp.model.Note;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
     private NoteDatabase db;
@@ -27,12 +29,11 @@ public class MainActivity extends AppCompatActivity {
     private View dragHandle;
     private EditText noteTitle, noteContent;
     private Button deleteButton, newNoteButton;
-
     private Note selectedNote = null;
     private NoteAdapter adapter;
     private List<Note> notes = new ArrayList<>();
-
     private boolean isLoadingNote = false;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,14 +124,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadAllNotes() {
-        new Thread(() -> {
+        executor.execute(() -> {
             List<Note> notesFromDb = db.noteDao().getAllNotes();
             runOnUiThread(() -> {
                 notes.clear();
                 notes.addAll(notesFromDb);
                 adapter.notifyDataSetChanged();
             });
-        }).start();
+        });
     }
 
     private void saveNote() {
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
         String finalTitle = generateUniqueTitle(title);
 
-        new Thread(() -> {
+        executor.execute(() -> {
             if (selectedNote != null) {
                 selectedNote.setTitle(finalTitle);
                 selectedNote.setContent(content);
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             });
 
-        }).start();
+        });
     }
 
     private void createNewNote() {
