@@ -24,15 +24,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+
     private NoteDatabase db;
     private RecyclerView recyclerView;
     private View dragHandle;
     private EditText noteTitle, noteContent;
     private Button deleteButton, newNoteButton;
+
     private Note selectedNote = null;
     private NoteAdapter adapter;
     private List<Note> notes = new ArrayList<>();
+
     private boolean isTextWatcherDisabled = false;
+    private boolean isInitializing = true;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -46,48 +51,43 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         initListeners();
         dragHandler();
+
+        isInitializing = false;
     }
 
-    /**
-     * initialise all UI elements and the database.
-     */
     private void initViews() {
-        db = Room.databaseBuilder(getApplicationContext(), NoteDatabase.class, "notes_database")
+        db = Room.databaseBuilder(
+                        getApplicationContext(),
+                        NoteDatabase.class,
+                        "notes_database"
+                )
                 .allowMainThreadQueries()
                 .build();
 
         recyclerView = findViewById(R.id.recyclerView);
         dragHandle = findViewById(R.id.dragHandle);
-
         noteTitle = findViewById(R.id.noteTitle);
         noteContent = findViewById(R.id.noteContent);
-
         deleteButton = findViewById(R.id.deleteButton);
         newNoteButton = findViewById(R.id.newNoteButton);
     }
 
-    /**
-     * set the layout manager for the RecyclerView (list with saved notes) and
-     * set the adapter for the RecyclerView.
-     */
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
 
-    /**
-     * adds click listeners for buttons.
-     */
     private void initListeners() {
         newNoteButton.setOnClickListener(v -> createNewNote());
         deleteButton.setOnClickListener(v -> deleteNote());
-        // will select whole Title on click
+
         noteTitle.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 noteTitle.post(() -> noteTitle.selectAll());
             }
         });
-        noteTitle.setOnClickListener(v -> noteTitle.selectAll()); // need this also unsure why it doesn't work without or alone
+
+        noteTitle.setOnClickListener(v -> noteTitle.selectAll());
 
         autoSaveOnTextChange(noteTitle);
         autoSaveOnTextChange(noteContent);
@@ -96,36 +96,39 @@ public class MainActivity extends AppCompatActivity {
     private void autoSaveOnTextChange(EditText textToEdit) {
         textToEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!isTextWatcherDisabled) {
+                if (!isTextWatcherDisabled && !isInitializing) {
                     saveNote();
                 }
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
     }
 
     private void loadSelectedNote(Button deleteButton) {
         adapter = new NoteAdapter(notes, note -> {
-            isTextWatcherDisabled = true; // TextWatcher deaktivieren
+            isTextWatcherDisabled = true;
 
             selectedNote = note;
             noteTitle.setText(note.getTitle());
             noteContent.setText(note.getContent());
             deleteButton.setEnabled(true);
 
-            isTextWatcherDisabled = false; // TextWatcher wieder aktivieren
+            isTextWatcherDisabled = false;
         });
     }
 
     private void loadAllNotes() {
         executor.execute(() -> {
             List<Note> notesFromDb = db.noteDao().getAllNotes();
+
             runOnUiThread(() -> {
                 notes.clear();
                 notes.addAll(notesFromDb);
@@ -154,17 +157,19 @@ public class MainActivity extends AppCompatActivity {
                 selectedNote = newNote;
             }
 
-            runOnUiThread(() -> {
-                adapter.notifyDataSetChanged();
-            });
-
+            runOnUiThread(() -> adapter.notifyDataSetChanged());
         });
     }
 
     private void createNewNote() {
+        isTextWatcherDisabled = true;
+
         selectedNote = null;
         noteTitle.setText(generateDefaultTitle());
         noteContent.setText("");
+        deleteButton.setEnabled(false);
+
+        isTextWatcherDisabled = false;
     }
 
     private void deleteNote() {
@@ -173,29 +178,28 @@ public class MainActivity extends AppCompatActivity {
             notes.remove(selectedNote);
             adapter.notifyDataSetChanged();
 
-            isTextWatcherDisabled = true; // TextWatcher deaktivieren
+            isTextWatcherDisabled = true;
+
             selectedNote = null;
             noteTitle.setText(generateDefaultTitle());
             noteContent.setText("");
-            isTextWatcherDisabled = false; // TextWatcher wieder aktivieren
-            findViewById(R.id.deleteButton).setEnabled(false);
+            deleteButton.setEnabled(false);
+
+            isTextWatcherDisabled = false;
         }
     }
 
-    // check for Titles that already exist START
     private String generateDefaultTitle() {
         int counter = 1;
         String newTitle;
 
         List<Note> existingNotes = db.noteDao().getAllNotes();
 
-        // Entferne die eigene Notiz aus der Liste
         if (selectedNote != null) {
             existingNotes.removeIf(note -> note.getId() == selectedNote.getId());
         }
 
         do {
-
             newTitle = String.format("Notiz%03d", counter);
             counter++;
         } while (titleExists(existingNotes, newTitle));
@@ -210,13 +214,12 @@ public class MainActivity extends AppCompatActivity {
         List<Note> existingNotes = db.noteDao().getAllNotes();
 
         while (titleExists(existingNotes, newTitle)) {
-            // Wenn die existierende Notiz die gleiche ID hat, ignoriere sie
             Note existingNote = getNoteByTitle(existingNotes, newTitle);
+
             if (existingNote != null && existingNote.getId() == (selectedNote != null ? selectedNote.getId() : -1)) {
                 break;
             }
 
-            // Generiere neuen Titel mit Zähler
             newTitle = String.format("%s%03d", title, counter);
             counter++;
         }
@@ -224,27 +227,25 @@ public class MainActivity extends AppCompatActivity {
         return newTitle;
     }
 
-    // Hilfsmethode, um eine Notiz basierend auf dem Titel zu finden
     private Note getNoteByTitle(List<Note> notes, String title) {
         for (Note note : notes) {
             if (note.getTitle().equals(title)) {
                 return note;
             }
         }
+
         return null;
     }
 
-
-    // Auxiliary method: Checks whether the title already exists.
     private boolean titleExists(List<Note> notes, String title) {
         for (Note note : notes) {
             if (note.getTitle().equals(title)) {
                 return true;
             }
         }
+
         return false;
     }
-    // check for Titles that already exist END
 
     private void dragHandler() {
         dragHandle.setOnTouchListener(new View.OnTouchListener() {
@@ -269,8 +270,10 @@ public class MainActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
                         params.width = newWidth;
                         recyclerView.setLayoutParams(params);
+
                         return true;
                 }
+
                 return false;
             }
         });
